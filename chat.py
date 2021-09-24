@@ -1,1 +1,47 @@
-cnQgPSA1MDAxCiAgICAKICAgICNhc2tzIGZvciB1c2VyIG5hbWUKICAgIG5hbWU9cmF3X2lucHV0KCJcMzNbMzRtXDMzWzFtIEVudGVyIFVzZXJuYW1lIH4+IFwzM1swbSIpCiAgICBzID0gc29ja2V0LnNvY2tldChzb2NrZXQuQUZfSU5FVCwgc29ja2V0LlNPQ0tfU1RSRUFNKQogICAgcy5zZXR0aW1lb3V0KDIpCiAgICB0cnkgOgogICAgICAgIHMuY29ubmVjdCgoaG9zdCwgcG9ydCkpCiAgICBleGNlcHQgOgogICAgICAgIHByaW50ICJcMzNbMzFtXDMzWzFtIE5vIENvbm5lY3QgU2V2ZXIgIVwzM1swbSIKICAgICAgICBzeXMuZXhpdCgpCiAgICBzLnNlbmQobmFtZSkKICAgIGRpc3BsYXkoKQogICAgd2hpbGUgMToKICAgICAgICBzb2NrZXRfbGlzdCA9IFtzeXMuc3RkaW4sIHNdCiAgICAgICAgckxpc3QsIHdMaXN0LCBlcnJvcl9saXN0ID0gc2VsZWN0LnNlbGVjdChzb2NrZXRfbGlzdCAsIFtdLCBbXSkKICAgICAgICBmb3Igc29jayBpbiByTGlzdDoKICAgICAgICAgICAgIGlmIHNvY2sgPT0gczoKICAgICAgICAgICAgICAgIGRhdGEgPSBzb2NrLnJlY3YoNDA5NikKICAgICAgICAgICAgICAgIGlmIG5vdCBkYXRhIDoKICAgICAgICAgICAgICAgICAgICBwcmludCAnXDMzWzMxbVwzM1sxbSBcclNldmVyIERpc2Nvbm5lY3RlZCBcbiBcMzNbMG0nCiAgICAgICAgICAgICAgICAgICAgc3lzLmV4aXQoKQogICAgICAgICAgICAgICAgZWxzZSA6CiAgICAgICAgICAgICAgICAgICAgc3lzLnN0ZG91dC53cml0ZShkYXRhKQogICAgICAgICAgICAgICAgICAgIGRpc3BsYXkoKQogICAgICAgICAgICBlbHNlIDoKICAgICAgICAgICAgICAgIG1zZz1zeXMuc3RkaW4ucmVhZGxpbmUoKQogICAgICAgICAgICAgICAgcy5zZW5kKG1zZykKICAgICAgICAgICAgICAgIGRpc3BsYXkoKQoKaWYgX19uYW1lX18gPT0gIl9fbWFpbl9fIjoKICAgIG1haW4oKQo=
+import socket, select, string, sys
+
+#Helper function (formatting)
+def display() :
+	you="\33[33m\33[1m"+" You: "+"\33[0m"
+	sys.stdout.write(you)
+	sys.stdout.flush()
+
+def main():
+
+    if len(sys.argv)<2:
+        host = raw_input("Enter Host : ")
+    else:
+        host = sys.argv[1]
+
+    port = 5001
+    
+    #asks for user name
+    name=raw_input("\33[34m\33[1m Enter Username ~> \33[0m")
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(2)
+    try :
+        s.connect((host, port))
+    except :
+        print "\33[31m\33[1m No Connect Sever !\33[0m"
+        sys.exit()
+    s.send(name)
+    display()
+    while 1:
+        socket_list = [sys.stdin, s]
+        rList, wList, error_list = select.select(socket_list , [], [])
+        for sock in rList:
+             if sock == s:
+                data = sock.recv(4096)
+                if not data :
+                    print '\33[31m\33[1m \rSever Disconnected \n \33[0m'
+                    sys.exit()
+                else :
+                    sys.stdout.write(data)
+                    display()
+            else :
+                msg=sys.stdin.readline()
+                s.send(msg)
+                display()
+
+if __name__ == "__main__":
+    main()
